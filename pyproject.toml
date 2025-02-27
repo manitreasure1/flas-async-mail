@@ -1,0 +1,24 @@
+[project]
+name = "flask-async-mail"
+version = "0.1.0"
+description = "A Flask extension for sending emails asynchronously with Celery"
+authors = [
+    {name = "manitreasure1",email = "manitreasure1@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "flask (>=3.1.0,<4.0.0)",
+    "celery (>=5.4.0,<6.0.0)",
+    "email-validator (>=2.2.0,<3.0.0)",
+    "redis (>=5.2.1,<6.0.0)",
+    "aiosmtplib (>=4.0.0,<5.0.0)"
+]
+
+[tool.poetry]
+packages = [{include = "flask_async_mail", from = "src"}]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
