@@ -17,7 +17,8 @@ from flask import Flask
 from flask_async_mail import FlaskCelery
 
 app = Flask(__name__)
-mail = FlaskCelery(app)
+celery = FlaskCelery()
+celery.init_app(app)
 ```
 
 Then, configure your email settings:
@@ -26,10 +27,41 @@ Then, configure your email settings:
 app.config.update(
     CELERY_BROKER_URL = "redis://localhost:6379/0"
     CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
-    MAIL_SERVER='smtp.example.com',
-    MAIL_PORT=587,
-    MAIL_USE_TLS=True,
-    MAIL_USERNAME='your-email@example.com',
-    MAIL_PASSWORD='your-password'
+    SMTP_HOST='smtp.example.com',
+    PORT=587,
+    USE_TLS=True,
+    USE_SSL=False,
+    SENDER='your-email@example.com',
+    PASSWORD='your-password'
 )
 ```
+
+## using celery as decorator
+```python
+from flask_async_mail.email_service import SendMail
+
+mailer = SendMail(app.config.items())
+
+@celery.task
+async def send_client_mail():
+    await mailer.send_email(
+        subject="Hello, I'am FlaskCelery",
+        recipient=["flaskcelery@example.com"],
+        content="""
+                    <html>
+                        <body>
+                            <h1>Hello user, This is FlaskCelery Library Update</h1>
+                        </body>
+                    </html>
+                """,
+        content_type="html"
+    )
+
+```
+
+## run command
+```bash
+celery -A task.celery worker --loglevel=info
+```
+
+
