@@ -3,6 +3,9 @@ from smtplib import SMTP_SSL, SMTP, SMTPException
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import logging
+from flask_async_mail import FlaskCelery
+
+celery = FlaskCelery()
 
 class SendMail:
     """
@@ -36,6 +39,9 @@ class SendMail:
         self.sender = self.config.get("SENDER")
         self.password = self.config.get("PASSWORD")
 
+
+
+    
     def send_email(self, 
         recipient: list, 
         content:Any, 

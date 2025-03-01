@@ -5,15 +5,12 @@ import os
 import logging
 from dotenv import load_dotenv
 
-
 load_dotenv()
-
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s' )
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-
 
 
 app.config["CELERY_BROKER_URL"] = "redis://localhost:6379/0"
@@ -23,8 +20,6 @@ app.config["USE_TLS"]=os.environ.get('USE_TLS')
 app.config["USE_SSL"]=os.environ.get('USE_SSL')
 app.config["SENDER"]=os.environ.get('SENDER')
 app.config["PASSWORD"] =os.environ.get('PASSWORD')
-
-
 
 
 celery = FlaskCelery()
