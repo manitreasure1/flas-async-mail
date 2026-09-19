@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <!-- Primary SEO Meta Tags -->
+        <title>flask-async-mail | Asynchronous Email Dispatch for Flask via Celery</title>
+        <meta name="title" content="flask-async-mail | Asynchronous Email Dispatch for Flask via Celery">
+        <meta name="description"
+            content="A modern Flask extension for sending emails asynchronously using Celery. Features simple setup, flexible Celery binding, template rendering, and native async coroutine support.">
+        <meta name="keywords"
+            content="flask, celery, python, async mail, flask-async-mail, email dispatch, background tasks, web development">
+        <meta name="author" content="flask-async-mail">
+        <meta name="robots" content="index, follow">
+
+        <!-- Open Graph / Facebook / LinkedIn Meta Tags -->
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="flask-async-mail - Async Email Dispatch for Flask">
+        <meta property="og:description"
+            content="Simplify email workflows in Flask applications with Celery. Features async coroutine support, dynamic SMTP overrides, and full task control.">
+        <meta property="og:site_name" content="flask-async-mail Documentation">
+
+        <!-- Twitter Card Meta Tags -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="flask-async-mail - Async Email Dispatch for Flask">
+        <meta name="twitter:description" content="Modern, asynchronous email handling for Flask apps backed by Celery.">
+
+        <style>
+            code,
+            pre,
+            kbd {
+                font-family: "JetBrains Mono", "Consolas", monospace;
+            }
+
+            pre {
+                border-radius: 14px;
+                border: 1px solid rgba(148, 163, 184, 0.18);
+            }
+
+            code:not(pre code) {
+                background: rgba(15, 23, 42, 0.06);
+                color: var(--brand-strong);
+                padding: 0.12rem 0.38rem;
+                border-radius: 6px;
+                font-size: 0.92em;
+            }
+
+            .copy-button {
+                position: absolute;
+                top: 8px;
+                right: 8px;
+                padding: 4px 12px;
+                background: rgba(255, 255, 255, 0.1);
+                color: #fff;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 4px;
+                font-size: 0.75rem;
+                cursor: pointer;
+                transition: all 0.2s;
+                font-family: inherit;
+                z-index: 10;
+                pointer-events: auto
+            }
+        </style>
+
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+            integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+            crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    </head>
+
+    <body>
+        <!-- Header Navigation -->
+        <header class="sticky top-0 z-40 w-full border-b border-dark-border bg-dark-bg/80 backdrop-blur-md">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <button id="menu-toggle" class="md:hidden p-2 text-dark-muted hover:text-white focus:outline-none"
+                        aria-label="Toggle navigation menu">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                    <a href="#overview" class="flex items-center gap-2">
+                        <div
+                            class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center font-bold text-white shadow-lg shadow-brand-500/20">
+                            <i class="fa-solid fa-paper-plane text-sm"></i>
+                        </div>
+                        <span class="font-bold text-lg text-white tracking-tight">flask-async-mail</span>
+                        <span
+                            class="px-2 py-0.5 text-xs font-semibold rounded-full bg-brand-500/10 text-brand-500 border border-brand-500/20">v0.1.1</span>
+                    </a>
+                </div>
+                <div class="flex items-center gap-4">
+                    <a href="#quickstart"
+                        class="hidden sm:inline-flex items-center text-sm font-medium text-dark-muted hover:text-white transition">
+                        Quickstart
+                    </a>
+                    <a href="#api-reference"
+                        class="hidden sm:inline-flex items-center text-sm font-medium text-dark-muted hover:text-white transition">
+                        API Reference
+                    </a>
+                    <a href="https://github.com/manitreasure1/flas-async-mail" target="_blank" rel="noopener noreferrer"
+                        class="p-2 text-dark-muted hover:text-white transition text-lg" title="GitHub Repository">
+                        <i class="fa-brands fa-github"></i>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex">
+            <!-- Sidebar Navigation -->
+            <aside id="sidebar"
+                class="fixed inset-y-0 left-0 z-30 w-64 bg-dark-bg border-r border-dark-border pt-20 px-4 transform -translate-x-full md:translate-x-0   md:bg-transparent md:border-none transition-transform duration-200 ease-in-out shrink-0"
+
+                >
+                <nav class="space-y-6 text-sm">
+                    <div>
+                        <h3 class="font-semibold  uppercase tracking-wider text-dark-muted  text-xs mb-3">Getting Started</h3>
+                        <ul class="space-y-2 border-l border-dark-border ml-1 pl-3">
+                            <li><a href="#overview"
+                                    class="block text-dark-muted hover:text-brand-500 transition border-l-2 border-transparent hover:-ml-[13px] hover:pl-2">Overview
+                                    & Features</a></li>
+                            <li><a href="#installation"
+                                    class="block text-dark-muted hover:text-brand-500 transition border-l-2 border-transparent hover:-ml-[13px] hover:pl-2">Installation</a>
+                            </li>
+                            <li><a href="#quickstart"
+                                    class="block text-dark-muted hover:text-brand-500 transition border-l-2 border-transparent hover:-ml-[13px] hover:pl-2">Quickstart</a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h3 class="font-semibold  uppercase tracking-wider text-dark-muted  text-xs mb-3">Core Usage & API</h3>
+                        <ul class="space-y-2 border-l border-dark-border ml-1 pl-3">
+                            <li><a href="#simple-dispatch"
+                                    class="block text-dark-muted hover:text-brand-500 transition border-l-2 border-transparent hover:-ml-[13px] hover:pl-2">Simple
+                                    Dispatch</a></li>
+                            <li><a href="#template-dispatch"
+                                    class="block text-dark-muted hover:text-brand-500 transition border-l-2 border-transparent hover:-ml-[13px] hover:pl-2">Template
+                                    Dispatch</a></li>
+                            <li><a href="#parameter-reference"
+                                    class="block text-dark-muted hover:text-brand-500 transition border-l-2 border-transparent hover:-ml-[13px] hover:pl-2">Parameter
+                                    Reference</a></li>
+                            <li><a href="#advanced-tasks"
+                                    class="block text-dark-muted hover:text-brand-500 transition border-l-2 border-transparent hover:-ml-[13px] hover:pl-2">Advanced
+                                    Tasks</a></li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h3 class="font-semibold uppercase tracking-wider text-dark-muted  text-xs mb-3">Compatibility</h3>
+                        <ul class="space-y-2 border-l border-dark-border ml-1 pl-3">
+                            <li><a href="#backward-compatibility"
+                                    class="block text-dark-muted hover:text-brand-500 transition border-l-2 border-transparent hover:-ml-[13px] hover:pl-2">SendMail
+                                    Legacy</a></li>
+                        </ul>
+                    </div>
+                </nav>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="flex-1 py-8 md:py-10 min-w-0 md:pl-8 md:max-w-[1000px] md:ml-[300px]">
+
+                <!-- Hero / Overview Section -->
+                <section id="overview" class="mb-16 scroll-mt-20">
+                    <div class="border-b border-dark-border pb-8">
+                        <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4">
+                            flask-async-mail
+                        </h1>
+                        <p class="text-lg text-dark-muted max-w-3xl leading-relaxed">
+                            A modern Flask extension for sending emails asynchronously using Celery.
+                            <code>flask-async-mail</code> simplifies email workflow
+                            management, eliminates explicit object importing overhead, and provides fine-grained control
+                            over execution and retry mechanisms.
+                        </p>
+                    </div>
+
+                    <!-- Feature Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+                        <div class="p-5 rounded-xl bg-dark-card border border-dark-border">
+                            <div
+                                class="w-10 h-10 rounded-lg bg-brand-500/10 text-brand-500 flex items-center justify-center mb-3">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            </div>
+                            <h3 class="font-bold text-white mb-1">Simplified Setup</h3>
+                            <p class="text-sm text-dark-muted">Direct integration via <code
+                                    class="text-brand-500">FlaskCelery</code> without requiring explicit
+                                import of standard <code class="text-brand-500 ">Mail</code> objects.</p>
+                        </div>
+
+                        <div class="p-5 rounded-xl bg-dark-card border border-dark-border">
+                            <div
+                                class="w-10 h-10 rounded-lg bg-brand-500/10 text-brand-500 flex items-center justify-center mb-3">
+                                <i class="fa-solid fa-link"></i>
+                            </div>
+                            <h3 class="font-bold text-white mb-1">Flexible Celery Binding</h3>
+                            <p class="text-sm text-dark-muted">Automatically attaches to the active Celery instance or
+                                creates a dedicated background object if none is provided.</p>
+                        </div>
+
+                        <div class="p-5 rounded-xl bg-dark-card border border-dark-border">
+                            <div
+                                class="w-10 h-10 rounded-lg bg-brand-500/10 text-brand-500 flex items-center justify-center mb-3">
+                                <i class="fa-solid fa-shield-halved"></i>
+                            </div>
+                            <h3 class="font-bold text-white mb-1">No Lost Controls</h3>
+                            <p class="text-sm text-dark-muted">Retain full access to native Celery features (<code
+                                    class="text-brand-500">autoretry_for</code>, <code
+                                    class="text-brand-500">queues</code>, <code class="text-brand-500">backoff</code>
+                                strategies) via
+                                standard Python class inheritance.</p>
+                        </div>
+
+                        <div class="p-5 rounded-xl bg-dark-card border border-dark-border">
+                            <div
+                                class="w-10 h-10 rounded-lg bg-brand-500/10 text-brand-500 flex items-center justify-center mb-3">
+                                <i class="fa-solid fa-bolt"></i>
+                            </div>
+                            <h3 class="font-bold text-white mb-1">Async & Coroutine Native</h3>
+                            <p class="text-sm text-dark-muted">Out-of-the-box support for synchronous dispatch as well
+                                as async coroutines (<code class="text-brand-500">send_async</code>, <code
+                                    class="text-brand-500">send_template_async</code>).</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Installation Section -->
+                <section id="installation" class="mb-16 scroll-mt-20">
+                    <h2 class="text-2xl font-bold  mb-4 flex items-center gap-2">
+                        Installation
+                    </h2>
+                    <p class="text-dark-muted mb-4">Install the package directly from PyPI using pip:</p>
+                    <pre><code class="language-bash">pip install flask-async-mail</code> </pre>
+                </section>
+
+                <!-- Quickstart Section -->
+                <section id="quickstart" class="mb-16 scroll-mt-20">
+                    <h2 class="text-2xl font-bold  mb-4 flex items-center gap-2">
+                        Quickstart
+                    </h2>
+                    <p class="text-dark-muted mb-4">
+                        Initialize <code class="text-brand-500">FlaskCelery</code> with your Flask
+                        application configuration. If an existing Celery app is not explicitly attached, it
+                        automatically binds to the active Celery context or creates a fallback instance.
+                    </p>
+
+                    <div class="relative group">
+
+                        <pre><code class="language-python">from flask_async_mail import FlaskCelery
+
+app = Flask(name)
+
+app.config.update(
+    CELERY_BROKER_URL="redis://localhost:6379/0",
+    CELERY_RESULT_BACKEND="redis://localhost:6379/0",
+    SMTP_HOST="smtp.example.com",
+    PORT=587,
+    SENDER="your-email@example.com",
+    PASSWORD="your-password",
+    TIMEOUT=30
+    )
+
+mail = FlaskCelery()
+# Celery can be explicitly passed; otherwise, current app/object created
+mail.init_app(app)
+
+
+@app.post("/auth/signup")
+def signup():
+    # Sign up logic...
+    mail.send(
+        recipients="example@mail.com",
+        content="Hello from FlaskCelery",
+        subject="Greetings",
+        # Optional config overrides
+        hostname="smtp.example.com",
+        port=465,
+        password="*********",
+        timeout=30,
+        # Celery execution directives
+        max_retries=5,
+        countdown=60,
+        retry_backoff=True,
+        queue='high_priority'
+        )
+    return {"status": "Email queued"}, 200
+    </code></pre>
+
+                        <!-- Core Usage & API Reference -->
+                        <section id="api-reference" class="mb-16 scroll-mt-20">
+                            <h2 class="text-2xl font-bold mb-6 border-b border-dark-border pb-3">
+                                Core Usage & API Reference
+                            </h2>
+
+                            <!-- 1. Simple Dispatch -->
+                            <div id="simple-dispatch" class="mb-10 scroll-mt-20">
+                                <h3 class="text-xl font-semibold mb-3">1. Simple Email Dispatch (<code
+                                        class="text-brand-500">send</code> / <code
+                                        class="text-brand-500">send_async</code>)</h3>
+                                <p class="text-dark-muted mb-4">
+                                    Dispatches standard text emails using default application configurations or inline
+                                    parameter overrides. Use <code class="text-brand-500 ">send_async</code> when
+                                    running within coroutine contexts.
+                                </p>
+                                <div class="relative group">
+
+                                    <pre><code class="language-python">mail.send(
+    recipients="user@example.com",
+    subject="Welcome",
+    content="Hello World"
+    )
+
+    # Async Coroutine Execution
+await mail.send_async(
+    recipients="user@example.com",
+    subject="Welcome",
+    content="Hello World"</code></pre>
+
+                                    <!-- 2. Template Dispatch -->
+                                    <div id="template-dispatch" class="mb-10 scroll-mt-20">
+                                        <h3 class="text-xl font-semibold mb-3">2. Template Email Dispatch (<code
+                                                class="text-brand-500">send_template</code> / <code
+                                                class="text-brand-500">send_template_async</code>)</h3>
+                                        <p class="text-dark-muted mb-4">
+                                            Renders HTML or plain-text templates accepting flexible <code
+                                                class="text-brand-500">context: Any</code> payloads.
+                                        </p>
+                                        <div class="relative group mb-6">
+                                            <pre><code class="language-python">mail.send_template(
+    recipients=["user@example.com",
+    subject="Account Verification",
+    template_name="emails/verify.html",
+    context={"username": "Alex", "link":"https://example.com/verify"},
+    content_type="html"
+    )</code></pre>
+
+
+                                            <!-- Parameter Reference Table -->
+                                            <div id="parameter-reference" class="scroll-mt-20">
+                                                <h4 class="font-bold mb-3">Parameter Reference (<code
+                                                        class="text-brand-500">send_template</code> & <code
+                                                        class="text-brand-500">send_template_async</code>)</h4>
+                                                <div class="overflow-x-auto border border-dark-border rounded-lg">
+                                                    <table class="w-full text-left text-sm">
+                                                        <thead
+                                                            class="bg-dark-card border-b border-dark-border text-white uppercase text-xs">
+                                                            <tr>
+                                                                <th class="py-3 px-4">Parameter</th>
+                                                                <th class="py-3 px-4">Type</th>
+                                                                <th class="py-3 px-4">Default</th>
+                                                                <th class="py-3 px-4">Description</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody class="divide-y divide-dark-border text-dark-muted">
+                                                            <tr>
+                                                                <td class="py-3 px-4 font-mono text-emerald-400">
+                                                                    recipients</td>
+                                                                <td class="py-3 px-4 font-mono text-purple-300">
+                                                                    list[str] | str</td>
+                                                                <td class="py-3 px-4 font-semibold text-rose-400">
+                                                                    Required</td>
+                                                                <td class="py-3 px-4">Recipient email address(es).</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="py-3 px-4 font-mono text-emerald-400">subject
+                                                                </td>
+                                                                <td class="py-3 px-4 font-mono text-purple-300">str</td>
+                                                                <td class="py-3 px-4 font-semibold text-rose-400">
+                                                                    Required</td>
+                                                                <td class="py-3 px-4">Email subject line.</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="py-3 px-4 font-mono text-emerald-400">
+                                                                    template_name</td>
+                                                                <td class="py-3 px-4 font-mono text-purple-300">str</td>
+                                                                <td class="py-3 px-4 font-semibold text-rose-400">
+                                                                    Required</td>
+                                                                <td class="py-3 px-4">Path to the template file.</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="py-3 px-4 font-mono text-emerald-400">context
+                                                                </td>
+                                                                <td class="py-3 px-4 font-mono text-purple-300">Any</td>
+                                                                <td class="py-3 px-4 font-semibold text-rose-400">
+                                                                    Required</td>
+                                                                <td class="py-3 px-4">Context payload passed directly to
+                                                                    template renderer.</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="py-3 px-4 font-mono text-emerald-400">
+                                                                    content_type</td>
+                                                                <td class="py-3 px-4 font-mono text-purple-300">
+                                                                    Literal["html", "plain"]</td>
+                                                                <td class="py-3 px-4 font-mono text-amber-300">"plain"
+                                                                </td>
+                                                                <td class="py-3 px-4">MIME subtype of the email message.
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="py-3 px-4 font-mono text-emerald-400">
+                                                                    username</td>
+                                                                <td class="py-3 px-4 font-mono text-purple-300">str |
+                                                                    None</td>
+                                                                <td class="py-3 px-4 font-mono text-amber-300">None</td>
+                                                                <td class="py-3 px-4">Override SMTP authentication
+                                                                    username.</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="py-3 px-4 font-mono text-emerald-400">
+                                                                    hostname</td>
+                                                                <td class="py-3 px-4 font-mono text-purple-300">str |
+                                                                    None</td>
+                                                                <td class="py-3 px-4 font-mono text-amber-300">None</td>
+                                                                <td class="py-3 px-4">Override SMTP server hostname.
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="py-3 px-4 font-mono text-emerald-400">port
+                                                                </td>
+                                                                <td class="py-3 px-4 font-mono text-purple-300">
+                                                                    Literal[465, 587] | None</td>
+                                                                <td class="py-3 px-4 font-mono text-amber-300">None</td>
+                                                                <td class="py-3 px-4">Override SMTP port.</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="py-3 px-4 font-mono text-emerald-400">
+                                                                    password</td>
+                                                                <td class="py-3 px-4 font-mono text-purple-300">str |
+                                                                    None</td>
+                                                                <td class="py-3 px-4 font-mono text-amber-300">None</td>
+                                                                <td class="py-3 px-4">Override SMTP authentication
+                                                                    password.</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="py-3 px-4 font-mono text-emerald-400">timeout
+                                                                </td>
+                                                                <td class="py-3 px-4 font-mono text-purple-300">float |
+                                                                    None</td>
+                                                                <td class="py-3 px-4 font-mono text-amber-300">None</td>
+                                                                <td class="py-3 px-4">Override SMTP socket connection
+                                                                    timeout.</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="py-3 px-4 font-mono text-emerald-400">
+                                                                    max_retries</td>
+                                                                <td class="py-3 px-4 font-mono text-purple-300">int |
+                                                                    None</td>
+                                                                <td class="py-3 px-4 font-mono text-amber-300">None</td>
+                                                                <td class="py-3 px-4">Celery max retry limit.</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="py-3 px-4 font-mono text-emerald-400">
+                                                                    countdown</td>
+                                                                <td class="py-3 px-4 font-mono text-purple-300">int |
+                                                                    None</td>
+                                                                <td class="py-3 px-4 font-mono text-amber-300">None</td>
+                                                                <td class="py-3 px-4">Celery task execution delay in
+                                                                    seconds.</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="py-3 px-4 font-mono text-emerald-400">
+                                                                    retry_backoff</td>
+                                                                <td class="py-3 px-4 font-mono text-purple-300">bool |
+                                                                    None</td>
+                                                                <td class="py-3 px-4 font-mono text-amber-300">None</td>
+                                                                <td class="py-3 px-4">Enable Celery exponential retry
+                                                                    backoff.</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="py-3 px-4 font-mono text-emerald-400">queue
+                                                                </td>
+                                                                <td class="py-3 px-4 font-mono text-purple-300">str |
+                                                                    None</td>
+                                                                <td class="py-3 px-4 font-mono text-amber-300">None</td>
+                                                                <td class="py-3 px-4">Target Celery execution queue.
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- 3. Advanced Task Configuration -->
+                                        <div id="advanced-tasks" class="scroll-mt-20">
+                                            <h3 class="text-xl font-semibold mb-3">3. Advanced Task Configuration (<code
+                                                    class="text-brand-500">BaseMailTask</code>)</h3>
+                                            <div class=" border border-brand-500/20 rounded-lg p-4 mb-4 text-sm ">
+                                                <strong class="text-brand-500">No Lost Controls:</strong> For production
+                                                systems requiring explicit retry rules and custom queue routing,
+                                                subclassing <code>BaseMailTask</code> guarantees you retain full access
+                                                to native Celery configurations (<code>autoretry_for</code>, queues,
+                                                backoff limits) without abstraction limitations.
+                                            </div>
+                                            <pre><code class="language-python">from  smtplib import SMTPException
+from flask_async_mail.task import BaseMailTask
+
+class AppMailTask(BaseMailTask):
+    autoretry_for = (SMTPException, ConnectionError, TimeoutError)
+    retry_kwargs = {'max_retries': 5}
+    retry_backoff = True
+    retry_backoff_max = 60
+    queue = 'priority_emails'
+
+@mail.task(base=AppMailTask, bind=True)
+def send_receipt(self, recipient, receipt_data):
+    formatted_body = render_receipt(receipt_data)
+    self.send(
+    subject="Your Purchase Receipt",
+    recipient=recipient,
+    content=formatted_body
+    )
+
+@app.post("/receipt")
+def receipt():
+    send_receipt.delay("user@example.com", {"item": "Book", "price": "$10"})
+    return {"status": "Receipt queued"}
+
+</code></pre>
+
+
+                                            <!-- Backward Compatibility -->
+                                            <section id="backward-compatibility" class="mb-16 scroll-mt-20">
+                                                <h2 class="text-2xl font-bold  mb-4 flex items-center gap-2">
+                                                    Backward Compatibility
+                                                </h2>
+                                                <p class="text-dark-muted mb-4">
+                                                    The legacy <code class="text-brand-500 font-mono">SendMail</code>
+                                                    object remains available for existing codebases requiring direct
+                                                    tuple-based app configuration binding.
+                                                </p>
+
+                                                <pre><code class="language-python">from flask_async_mail.email_service import SendMail
+mailer = SendMail(app.config.items())</code></pre>
+
+                                                <!-- JavaScript interactions -->
+                                                <script>
+
+                                                    document.querySelectorAll('pre').forEach((pre) => {
+
+                                                        const button = document.createElement('button');
+                                                        button.innerText = 'Copy';
+                                                        button.className = 'copy-button';
+
+                                                        pre.style.position = 'relative';
+                                                        pre.appendChild(button);
+
+                                                        button.addEventListener('click', async () => {
+                                                            const code = pre.querySelector('code');
+                                                            const text = code.innerText;
+
+                                                            try {
+                                                                await navigator.clipboard.writeText(text);
+                                                                button.innerText = 'Copied!';
+                                                                button.classList.add('copied');
+
+                                                                setTimeout(() => {
+                                                                    button.innerText = 'Copy';
+                                                                    button.classList.remove('copied');
+                                                                }, 2000);
+                                                            } catch (err) {
+                                                                console.error('Failed to copy: ', err);
+                                                            }
+                                                        });
+                                                    });
+                                                    // Toggle mobile sidebar
+                                                    const menuToggle = document.getElementById('menu-toggle');
+                                                    const sidebar = document.getElementById('sidebar');
+
+                                                    menuToggle.addEventListener('click', () => {
+                                                        sidebar.classList.toggle('-translate-x-full');
+                                                    });
+
+
+                                                </script>
+                                                <script src="https://cdn.tailwindcss.com"></script>
+                                                <script>
+                                                    tailwind.config = {
+                                                        darkMode: 'class',
+                                                        theme: {
+                                                            extend: {
+                                                                colors: {
+                                                                    brand: {
+                                                                        100: '#e0e7ff',
+                                                                        500: '#6366f1',
+                                                                        600: '#4f46e5',
+                                                                    },
+                                                                    dark: {
+                                                                        bg: '#0f172a',
+                                                                        card: '#1e293b',
+                                                                        border: '#334155',
+                                                                        muted: '#94a3b8'
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                </script>
+                                                <script
+                                                    src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+                                                <script
+                                                    src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+                                                <script
+                                                    src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+
+    </body>
+
+</html>
